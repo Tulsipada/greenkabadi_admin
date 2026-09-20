@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthContext'
 import { RequireAdmin } from './auth/RequireAdmin'
+import { MobileDesktopGate } from './components/MobileDesktopGate'
 import { AdminShell } from './layout/AdminShell'
 import { LoginPage } from './pages/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
@@ -19,32 +20,34 @@ import './styles/tokens.css'
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route element={<RequireAdmin />}>
-            <Route element={<AdminShell />}>
-              <Route index element={<DashboardPage />} />
-              <Route path="inbox" element={<InboxPage />} />
-              <Route path="orders/:id/assign" element={<AssignPage />} />
-              <Route path="jobs" element={<JobsPage />} />
-              <Route path="transactions" element={<TransactionsPage />} />
-              <Route path="transactions/:id" element={<TransactionEditPage />} />
-              <Route path="users" element={<UsersPage />} />
-              <Route path="staff" element={<StaffPage />} />
-              <Route path="staff/new" element={<StaffAddPage />} />
-              <Route path="categories" element={<CategoriesPage />} />
-              <Route path="categories/:id" element={<CategoryDetailPage />} />
-              <Route path="contacts" element={<ContactsPage />} />
-              <Route path="contacts/:id" element={<ContactDetailPage />} />
-              <Route path="notifications" element={<NotificationsPage />} />
-              <Route path="settings/*" element={<SettingsRoutes />} />
+    <MobileDesktopGate>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route element={<RequireAdmin />}>
+              <Route element={<AdminShell />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="inbox" element={<InboxPage />} />
+                <Route path="orders/:id/assign" element={<AssignPage />} />
+                <Route path="jobs" element={<JobsPage />} />
+                <Route path="transactions" element={<TransactionsPage />} />
+                <Route path="transactions/:id" element={<TransactionEditPage />} />
+                <Route path="users" element={<UsersPage />} />
+                <Route path="staff" element={<StaffPage />} />
+                <Route path="staff/new" element={<StaffAddPage />} />
+                <Route path="categories" element={<CategoriesPage />} />
+                <Route path="categories/:id" element={<CategoryDetailPage />} />
+                <Route path="contacts" element={<ContactsPage />} />
+                <Route path="contacts/:id" element={<ContactDetailPage />} />
+                <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="settings/*" element={<SettingsRoutes />} />
+              </Route>
             </Route>
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </MobileDesktopGate>
   )
 }
