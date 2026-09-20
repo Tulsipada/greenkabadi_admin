@@ -1,11 +1,18 @@
 import type { OrderStatus } from '../types'
 
+const STATUS_LABELS: Record<string, string> = {
+  waiting: 'Request received',
+  assigned: 'Collector assigned',
+  enroute: 'Collector on the way',
+  collected: 'Materials verified',
+  completed: 'Payment completed',
+  cancelled: 'Cancelled',
+}
+
 export function StatusChip({ status }: { status: OrderStatus | string }) {
   const cls = `chip chip-${status}`
   const label =
-    status === 'enroute'
-      ? 'En route'
-      : status.charAt(0).toUpperCase() + status.slice(1)
+    STATUS_LABELS[status] || status.charAt(0).toUpperCase() + status.slice(1)
   return <span className={cls}>{label}</span>
 }
 
