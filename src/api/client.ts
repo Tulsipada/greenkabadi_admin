@@ -5,6 +5,9 @@ const API_URL = (
 export type ApiError = { status: number; message: string }
 
 async function parseError(res: Response): Promise<ApiError> {
+  if (res.status === 413) {
+    return { status: 413, message: 'Image is too large. Choose a smaller photo.' }
+  }
   try {
     const body = await res.json()
     const message =
