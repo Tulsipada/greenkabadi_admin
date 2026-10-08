@@ -258,6 +258,24 @@ table.data tr:hover td { background: #fafdfa; }
 }
 .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .empty { padding: 32px; text-align: center; color: var(--gk-muted); }
+.cat-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--gk-border);
+  background: var(--gk-green-50);
+  display: block;
+}
+.cat-preview {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--gk-border);
+  background: var(--gk-green-50);
+  display: block;
+}
 
 .login-wrap {
   min-height: 100vh;

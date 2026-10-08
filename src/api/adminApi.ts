@@ -1,4 +1,4 @@
-import { api } from './client'
+import { api, apiUpload } from './client'
 import type {
   AppNotification,
   Category,
@@ -104,6 +104,8 @@ export const catalogApi = {
       token,
       body: JSON.stringify(body),
     }),
+  uploadImage: (token: string, id: string, file: File) =>
+    apiUpload<Category>(`/categories/${id}/image`, token, file),
   addSub: (token: string, categoryId: string, body: Partial<Subcategory>) =>
     api<Subcategory>(`/categories/${categoryId}/subcategories`, {
       method: 'POST',

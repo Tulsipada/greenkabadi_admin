@@ -1,6 +1,7 @@
-import { type FormEvent, useEffect, useState } from 'react'
+import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { catalogApi } from '../api/adminApi'
+import { mediaUrl } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { PageHeader } from '../layout/AdminShell'
 import type { Category, Subcategory } from '../types'
@@ -9,6 +10,8 @@ export function CategoriesPage() {
   const { token } = useAuth()
   const [cats, setCats] = useState<Category[]>([])
   const [name, setName] = useState('')
+  const [image, setImage] = useState<File | null>(null)
+  const imageRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -31,9 +34,13 @@ export function CategoriesPage() {
   const onCreate = async (e: FormEvent) => {
     e.preventDefault()
     if (!token || !name.trim()) return
+    setError('')
     try {
-      await catalogApi.create(token, { name: name.trim(), active: true })
+      const created = await catalogApi.create(token, { name: name.trim(), active: true })
+      if (image) await catalogApi.uploadImage(token, created.id, image)
       setName('')
+      setImage(null)
+      if (imageRef.current) imageRef.current.value = ''
       await load()
     } catch (err: unknown) {
       setError((err as { message?: string })?.message || 'Create failed')
@@ -49,6 +56,15 @@ export function CategoriesPage() {
             <label>New category</label>
             <input value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
+          <div className="field" style={{ flex: 1, marginBottom: 0 }}>
+            <label>Image</label>
+            <input
+              ref={imageRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+            />
+          </div>
           <button className="btn btn-primary" type="submit" style={{ marginTop: 18 }}>
             Add
           </button>
@@ -61,6 +77,7 @@ export function CategoriesPage() {
             <table className="data">
               <thead>
                 <tr>
+                  <th>Image</th>
                   <th>Name</th>
                   <th>Subs</th>
                   <th>Active</th>
@@ -70,6 +87,13 @@ export function CategoriesPage() {
               <tbody>
                 {cats.map((c) => (
                   <tr key={c.id}>
+                    <td>
+                      {c.imageUrl ? (
+                        <img className="cat-thumb" src={mediaUrl(c.imageUrl)} alt="" />
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
+                    </td>
                     <td>{c.name}</td>
                     <td>{c.subcategories?.length ?? 0}</td>
                     <td>{c.active === false ? 'No' : 'Yes'}</td>
@@ -82,7 +106,7 @@ export function CategoriesPage() {
                 ))}
                 {!cats.length && (
                   <tr>
-                    <td colSpan={4} className="empty">
+                    <td colSpan={5} className="empty">
                       No categories
                     </td>
                   </tr>
@@ -106,6 +130,7 @@ export function CategoryDetailPage() {
   const [unit, setUnit] = useState('kg')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
 
   const load = async () => {
     if (!token || !id) return
@@ -124,6 +149,20 @@ export function CategoryDetailPage() {
   useEffect(() => {
     void load()
   }, [token, id])
+
+  const onImage = async (file: File | null) => {
+    if (!token || !cat || !file) return
+    setError('')
+    setUploading(true)
+    try {
+      await catalogApi.uploadImage(token, cat.id, file)
+      await load()
+    } catch (err: unknown) {
+      setError((err as { message?: string })?.message || 'Image upload failed')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const toggleActive = async () => {
     if (!token || !cat) return
@@ -170,13 +209,31 @@ export function CategoryDetailPage() {
         {error && <p className="error">{error}</p>}
         {cat && (
           <>
-            <div className="toolbar">
-              <span className="muted">
-                Status: {cat.active === false ? 'Inactive' : 'Active'}
-              </span>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={toggleActive}>
-                {cat.active === false ? 'Activate' : 'Deactivate'}
-              </button>
+            <div className="card row" style={{ marginBottom: 16, alignItems: 'center' }}>
+              {cat.imageUrl ? (
+                <img className="cat-preview" src={mediaUrl(cat.imageUrl)} alt="" />
+              ) : (
+                <div className="cat-preview" />
+              )}
+              <div className="field" style={{ flex: 1, marginBottom: 0 }}>
+                <label>Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  disabled={uploading}
+                  onChange={(e) => void onImage(e.target.files?.[0] || null)}
+                />
+              </div>
+              <div>
+                <span className="muted">
+                  Status: {cat.active === false ? 'Inactive' : 'Active'}
+                </span>
+                <div style={{ marginTop: 8 }}>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={toggleActive}>
+                    {cat.active === false ? 'Activate' : 'Deactivate'}
+                  </button>
+                </div>
+              </div>
             </div>
             <form className="card row" onSubmit={addSub} style={{ marginBottom: 16 }}>
               <div className="field" style={{ flex: 2, marginBottom: 0 }}>

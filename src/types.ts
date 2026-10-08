@@ -57,6 +57,7 @@ export type Category = {
   id: string
   name: string
   description?: string
+  imageUrl?: string
   active?: boolean
   sortOrder?: number
   subcategories?: Subcategory[]

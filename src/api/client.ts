@@ -42,4 +42,36 @@ export async function api<T>(
   return JSON.parse(text) as T
 }
 
+export async function apiUpload<T>(
+  path: string,
+  token: string,
+  file: File,
+  field = 'image',
+): Promise<T> {
+  const body = new FormData()
+  body.append(field, file)
+  let res: Response
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      method: 'POST',
+      body,
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  } catch (e: unknown) {
+    const detail = e instanceof Error ? e.message : 'Network request failed'
+    throw { status: 0, message: `Cannot reach API (${API_URL}): ${detail}` } satisfies ApiError
+  }
+  if (!res.ok) throw await parseError(res)
+  return (await res.json()) as T
+}
+
+export function mediaUrl(path?: string | null): string {
+  if (!path) return ''
+  if (/^https?:\/\//i.test(path)) return path
+  return `${API_URL}${path.startsWith('/') ? path : `/${path}`}`
+}
+
 export { API_URL }
