@@ -32,7 +32,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_API_URL: https://greenkabadi.demo.dhinova.com
+          VITE_API_URL: https://api.greenkabadi.in
 
       - name: SPA fallback 404.html
         run: cp ./dist/index.html ./dist/404.html

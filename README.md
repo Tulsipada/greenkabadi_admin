@@ -7,7 +7,7 @@ Office admin website for pickup ops: inbox, assign collectors, jobs, transaction
 ## Stack
 
 - Vite + React 19 + TypeScript + React Router
-- API: LoopBack backend (`VITE_API_URL`, default demo)
+- API: LoopBack backend (`VITE_API_URL`, default `https://api.greenkabadi.in`)
 
 ## Local
 
@@ -20,7 +20,7 @@ npm run dev
 Optional `.env`:
 
 ```
-VITE_API_URL=https://greenkabadi.demo.dhinova.com
+VITE_API_URL=https://api.greenkabadi.in
 ```
 
 Login requires `role: admin`. Seed (if demo DB seeded): `admin@greenkabadi.local` / `Admin@12345`.

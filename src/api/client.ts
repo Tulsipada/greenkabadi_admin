@@ -1,5 +1,5 @@
 const API_URL = (
-  import.meta.env.VITE_API_URL || 'https://greenkabadi.demo.dhinova.com'
+  import.meta.env.VITE_API_URL || 'https://api.greenkabadi.in'
 ).replace(/\/$/, '')
 
 export type ApiError = { status: number; message: string }
