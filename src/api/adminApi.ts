@@ -150,6 +150,11 @@ export const notifApi = {
       method: 'PATCH',
       token,
     }),
+  remove: (token: string, id: string) =>
+    api<void>(`/notifications/${id}`, {
+      method: 'DELETE',
+      token,
+    }),
   readAll: (token: string) =>
     api<{ count?: number }>('/notifications/read-all', {
       method: 'POST',

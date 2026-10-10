@@ -10,6 +10,7 @@ export function NotificationsPage() {
   const [items, setItems] = useState<AppNotification[]>([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const load = async () => {
     if (!token) return
@@ -37,6 +38,20 @@ export function NotificationsPage() {
     if (!token) return
     await notifApi.read(token, id)
     await load()
+  }
+
+  const deleteOne = async (notification: AppNotification) => {
+    if (!token || !window.confirm(`Delete notification "${notification.title}"?`)) return
+    setError('')
+    setDeletingId(notification.id)
+    try {
+      await notifApi.remove(token, notification.id)
+      await load()
+    } catch (err: unknown) {
+      setError((err as { message?: string })?.message || 'Delete failed')
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   return (
@@ -72,15 +87,26 @@ export function NotificationsPage() {
                       {formatDate(n.createdAt)}
                     </div>
                   </div>
-                  {!n.read && (
+                  <div>
+                    {!n.read && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => void markOne(n.id)}
+                      >
+                        Mark read
+                      </button>
+                    )}
                     <button
                       type="button"
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => markOne(n.id)}
+                      className="btn btn-danger btn-sm"
+                      disabled={deletingId === n.id}
+                      onClick={() => void deleteOne(n)}
+                      style={{ marginLeft: 8 }}
                     >
-                      Mark read
+                      {deletingId === n.id ? 'Deleting…' : 'Delete'}
                     </button>
-                  )}
+                  </div>
                 </div>
               </div>
             ))}

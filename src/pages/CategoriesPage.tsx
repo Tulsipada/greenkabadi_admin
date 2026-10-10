@@ -166,11 +166,15 @@ export function CategoryDetailPage() {
     if (!token || !id) return
     setLoading(true)
     try {
-      const list = await catalogApi.list(token, true)
-      const found = list.find((c) => c.id === id) || null
-      setCat(found)
+      setCat(await catalogApi.get(token, id))
     } catch (e: unknown) {
-      setError((e as { message?: string })?.message || 'Failed to load')
+      const apiError = e as { status?: number; message?: string }
+      if (apiError.status === 404) {
+        setCat(null)
+        setError('')
+      } else {
+        setError(apiError.message || 'Failed to load')
+      }
     } finally {
       setLoading(false)
     }
