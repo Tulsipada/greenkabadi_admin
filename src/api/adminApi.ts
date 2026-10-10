@@ -105,6 +105,11 @@ export const catalogApi = {
       token,
       body: JSON.stringify(body),
     }),
+  remove: (token: string, id: string) =>
+    api<void>(`/categories/${id}`, {
+      method: 'DELETE',
+      token,
+    }),
   uploadImage: async (token: string, id: string, file: File) =>
     apiUpload<Category>(`/categories/${id}/image`, token, await compressImage(file)),
   addSub: (token: string, categoryId: string, body: Partial<Subcategory>) =>
@@ -118,6 +123,11 @@ export const catalogApi = {
       method: 'PATCH',
       token,
       body: JSON.stringify(body),
+    }),
+  removeSub: (token: string, id: string) =>
+    api<void>(`/subcategories/${id}`, {
+      method: 'DELETE',
+      token,
     }),
 }
 

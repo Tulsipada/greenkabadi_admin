@@ -14,6 +14,7 @@ export function CategoriesPage() {
   const imageRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const load = async () => {
     if (!token) return
@@ -44,6 +45,25 @@ export function CategoriesPage() {
       await load()
     } catch (err: unknown) {
       setError((err as { message?: string })?.message || 'Create failed')
+    }
+  }
+
+  const deleteCategory = async (category: Category) => {
+    setError('')
+    if (category.subcategories?.length) {
+      setError('Delete all subcategories before deleting this category.')
+      return
+    }
+    if (!window.confirm(`Delete category "${category.name}"?`)) return
+    if (!token) return
+    setDeletingId(category.id)
+    try {
+      await catalogApi.remove(token, category.id)
+      await load()
+    } catch (err: unknown) {
+      setError((err as { message?: string })?.message || 'Delete failed')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -101,6 +121,15 @@ export function CategoriesPage() {
                       <Link className="btn btn-ghost btn-sm" to={`/categories/${c.id}`}>
                         Open
                       </Link>
+                      <button
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                        disabled={deletingId === c.id}
+                        onClick={() => void deleteCategory(c)}
+                        style={{ marginLeft: 8 }}
+                      >
+                        {deletingId === c.id ? 'Deleting…' : 'Delete'}
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -131,6 +160,7 @@ export function CategoryDetailPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [deletingSubId, setDeletingSubId] = useState<string | null>(null)
 
   const load = async () => {
     if (!token || !id) return
@@ -192,6 +222,21 @@ export function CategoryDetailPage() {
     if (!token) return
     await catalogApi.patchSub(token, s.id, patch)
     await load()
+  }
+
+  const deleteSub = async (sub: Subcategory) => {
+    if (!token) return
+    if (!window.confirm(`Delete subcategory "${sub.name}"?`)) return
+    setError('')
+    setDeletingSubId(sub.id)
+    try {
+      await catalogApi.removeSub(token, sub.id)
+      await load()
+    } catch (err: unknown) {
+      setError((err as { message?: string })?.message || 'Subcategory delete failed')
+    } finally {
+      setDeletingSubId(null)
+    }
   }
 
   return (
@@ -291,6 +336,15 @@ export function CategoryDetailPage() {
                           onClick={() => saveSub(s, { active: s.active === false })}
                         >
                           Toggle
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-sm"
+                          disabled={deletingSubId === s.id}
+                          onClick={() => void deleteSub(s)}
+                          style={{ marginLeft: 8 }}
+                        >
+                          {deletingSubId === s.id ? 'Deleting…' : 'Delete'}
                         </button>
                       </td>
                     </tr>
